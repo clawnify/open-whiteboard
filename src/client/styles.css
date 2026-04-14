@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f9fafb;
+  color: #1a202c;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* Fix Excalidraw SVG/img being hidden by Tailwind's preflight display:block reset */
+.excalidraw svg {
+  display: inline;
+  vertical-align: initial;
+}
+
+.excalidraw img {
+  display: initial;
+  max-width: initial;
+  height: initial;
+}

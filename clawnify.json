@@ -1,0 +1,40 @@
+{
+  "$schema": "https://app.clawnify.com/schema/v1/clawnify.json",
+  "version": 1,
+  "name": "Whiteboard App",
+  "description": "Collaborative whiteboard with hand-drawn feel for sketching diagrams, wireframes, flowcharts, and visual brainstorming. Canvas-based drawing with shapes, text, arrows, freehand, and export. Like Excalidraw. Best for whiteboarding tools, diagram editors, wireframe builders, or any sketch-based visual collaboration.",
+  "icon": "icon.svg",
+  "tags": ["whiteboard", "drawing", "diagrams", "sketching"],
+
+  "app": {
+    "framework": "preact+hono",
+    "database": true,
+    "storage": false
+  },
+
+  "deploy": {
+    "title": "Deploy your Whiteboard",
+    "subtitle": "Like Excalidraw — your own branded whiteboard in minutes",
+    "prompts": [
+      {
+        "key": "brand_name",
+        "label": "Brand or company name",
+        "placeholder": "e.g. SketchBoard Pro",
+        "required": true
+      },
+      {
+        "key": "use_case",
+        "label": "What will you use it for?",
+        "placeholder": "e.g. Team brainstorming and architecture diagrams"
+      },
+      {
+        "key": "details",
+        "label": "Any other details?",
+        "type": "textarea",
+        "placeholder": "Brand colors, default templates, custom libraries..."
+      }
+    ]
+  },
+
+  "agent": "agent.md"
+}
