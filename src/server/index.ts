@@ -1,7 +1,14 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { query, get, run } from "./db.js";
+import { initDB, query, get, run } from "./db.js";
 
-const app = new OpenAPIHono();
+type Env = { Bindings: { DB: D1Database } };
+
+const app = new OpenAPIHono<Env>();
+
+app.use("*", async (c, next) => {
+  initDB(c.env.DB);
+  await next();
+});
 
 // ── Schemas ──────────────────────────────────────────────────────────
 
@@ -46,7 +53,7 @@ const getDrawing = createRoute({
 
 app.openapi(getDrawing, async (c) => {
   const { id } = c.req.valid("param");
-  const row = await get<z.infer<typeof DrawingSchema>>("SELECT * FROM drawings WHERE id = ?", id);
+  const row = await get<z.infer<typeof DrawingSchema>>("SELECT * FROM drawings WHERE id = ?", [id]);
   if (!row) return c.json({ error: "Not found" }, 404);
   return c.json(row, 200);
 });
@@ -78,7 +85,7 @@ app.openapi(createDrawing, async (c) => {
   const name = body.name || "Untitled";
   const scene_data = body.scene_data || '{"elements":[],"appState":{},"files":{}}';
 
-  await run("INSERT INTO drawings (name, scene_data) VALUES (?, ?)", name, scene_data);
+  await run("INSERT INTO drawings (name, scene_data) VALUES (?, ?)", [name, scene_data]);
   const row = await get<z.infer<typeof DrawingSchema>>(
     "SELECT * FROM drawings ORDER BY created_at DESC LIMIT 1"
   );
@@ -113,7 +120,7 @@ app.openapi(updateDrawing, async (c) => {
   const { id } = c.req.valid("param");
   const body = c.req.valid("json");
 
-  const existing = await get<z.infer<typeof DrawingSchema>>("SELECT * FROM drawings WHERE id = ?", id);
+  const existing = await get<z.infer<typeof DrawingSchema>>("SELECT * FROM drawings WHERE id = ?", [id]);
   if (!existing) return c.json({ error: "Not found" }, 404);
 
   const name = body.name ?? existing.name;
@@ -121,12 +128,10 @@ app.openapi(updateDrawing, async (c) => {
 
   await run(
     "UPDATE drawings SET name = ?, scene_data = ?, updated_at = datetime('now') WHERE id = ?",
-    name,
-    scene_data,
-    id
+    [name, scene_data, id]
   );
 
-  const row = await get<z.infer<typeof DrawingSchema>>("SELECT * FROM drawings WHERE id = ?", id);
+  const row = await get<z.infer<typeof DrawingSchema>>("SELECT * FROM drawings WHERE id = ?", [id]);
   return c.json(row!, 200);
 });
 
@@ -144,9 +149,9 @@ const deleteDrawing = createRoute({
 
 app.openapi(deleteDrawing, async (c) => {
   const { id } = c.req.valid("param");
-  const existing = await get("SELECT id FROM drawings WHERE id = ?", id);
+  const existing = await get("SELECT id FROM drawings WHERE id = ?", [id]);
   if (!existing) return c.json({ error: "Not found" }, 404);
-  await run("DELETE FROM drawings WHERE id = ?", id);
+  await run("DELETE FROM drawings WHERE id = ?", [id]);
   return c.json({ ok: true }, 200);
 });
 
